@@ -6,25 +6,24 @@ use Robots\Exceptions\MissingRobotsTxtException;
 class RobotsTxt
 {
 	/**
-	 * [$url description]
-	 * @var string
-	 */
-	protected $url;
-
-	/**
-	 * [$robotsRules description]
+	 * Array that will contain the robots.txt rules keyed by domain
 	 * @var array
 	 */
-	protected $robotsRules;
+	protected $robotsRules = [];
+
+	/**
+	 * The user agent we set
+	 * @var string
+	 */
+	protected $userAgent;
 
 	/**
 	 * Instantiate the class
 	 * @param string $url 
 	 */
-	public function __construct($url)
+	public function __construct() 
 	{
-		$this->url = $url;
-		$this->robotsRules = $this->getRobotsRules($url);
+
 	}
 
 	public function lastModified($url)
@@ -33,27 +32,21 @@ class RobotsTxt
 	}
 
 	/**
-	 * Gets the paths specifically allowed by the robots.txt file
-	 * 
-	 * @return array 
-	 */
-	public function getAllowed()
-	{
-		//@todo check if user agent exists
-		// get the allowed paths for a user agent
-		return $this->robotsRules['userAgent']['*']['allowed'];
-	}
-
-	/**
 	 * Gets the paths specifically disallowed by the robots.txt file
 	 * 
 	 * @return array 
 	 */
-	public function getDisallowed()
+	public function getDisallowed($url)
 	{
-		//@todo check if user agent exists
-		// get the disallowed paths for a user agent
-		return $this->robotsRules['userAgent']['*']['disallowed'];
+		$domain = parse_url($url)['host'];
+		$scheme = parse_url($url)['scheme'];
+		$base   = $scheme . '://' . $domain;
+
+		if ($this->isBaseRulesSet($base) === false) {
+			$this->setBaseRules($base);
+		}
+
+		return $this->robotsRules[$base]['userAgent']['*']['disallowed'];
 	}
 
 	/**
@@ -71,7 +64,7 @@ class RobotsTxt
 		$path = ltrim($path, "/");
 		$path = (substr($path, -1) == "/") ? $path : $path . '/';
 		// Check if path is allowed
-		foreach ($this->getDisallowed() as $disallowed) {
+		foreach ($this->getDisallowed($url) as $disallowed) {
 			if ($disallowed == "/") {
 				$allowed = false;
 				break;
@@ -138,18 +131,58 @@ class RobotsTxt
 		return $path;
 	}
 
+
+	/**
+	 * Retrieves the roobots.txt file URL for a given url
+	 * @param  string $url 
+	 * @return string www.example.com/robots.txt
+	 */
+	protected function getRobotsUrl($url) 
+	{
+		$parts  = parse_url($url);
+		$domain = $parts['host'] ;
+		$scheme = $parts['scheme'];
+
+		return $scheme . '://' . $domain . '/robots.txt';
+	}
+
+	/**
+	 * Check if we already have the rules for a given base
+	 * @param  string $domain The domain portion of the URL e.g. example.com
+	 * @return bool
+	 */
+	private function isBaseRulesSet($base)
+	{
+		// need to get domain of url then check
+		return isset($this->robotsRules[$base]);
+	}
+
+	/**
+	 * Set the robots.txt rules for a domain
+	 * @param string $domain 
+	 */
+	private function setBaseRules($base)
+	{
+		$robotsUrl = $this->getRobotsUrl($base);
+		$this->robotsRules[$base] = $this->getRobotsRules($robotsUrl);
+	}
+
+
+	public function setUserAgent($userAgent)
+	{
+		ini_set('user_agent', $userAgent);
+
+		return $this;
+	}
+
 	/**
 	 * Parses the robots.txt file into an array
-	 * @param  string $url 
+	 * @param  string $robotsUrl 
 	 * @throws MissingRobotsTxtException If no robots.txt file found
 	 * @return array      
 	 */
-	protected function getRobotsRules($url)
+	protected function getRobotsRules($robotsUrl)
  	{
- 		ini_set('user_agent', 'Mozilla/5.0 (Linux; U; Android 4.0.3; ko-kr; LG-L160L Build/IML74K) AppleWebkit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30');
- 		// @todo need a more robust search for the actual txt file...
- 		$robotsUrl = $url . '/robots.txt'; 
-
  		// Parse the file into an array of urls we'll ignore
  		$robotsRules = [];
  		$userAgent   = '';
@@ -176,7 +209,7 @@ class RobotsTxt
 		    }
 		    fclose($handle);
 		} else {
-		    throw new MissingRobotsTxtException("Unable to retrieve robots.txt file for $url");
+		    throw new MissingRobotsTxtException("Unable to retrieve robots.txt file for URL: {$robotsUrl}");
 		} 
 
  		return $robotsRules;
