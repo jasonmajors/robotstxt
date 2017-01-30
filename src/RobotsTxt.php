@@ -1,4 +1,7 @@
 <?php
+/**
+ * @version  1.0.0
+ */
 namespace Robots;
 
 use Robots\Exceptions\MissingRobotsTxtException;
@@ -24,11 +27,6 @@ class RobotsTxt
 	public function __construct() 
 	{
 
-	}
-
-	public function lastModified($url)
-	{
-		//
 	}
 
 	/**
