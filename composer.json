@@ -4,7 +4,7 @@
 	"description": "A small package for parsing websites' robots.txt files",
 	"keywords": [
 		"PHP",
-		"robots.txt",
+		"robots.txt"
 	],
 	"license": "MIT",
 	"authors": [
