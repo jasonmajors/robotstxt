@@ -42,8 +42,8 @@ $allowed = $robotsTxt->setUserAgent($userAgent)->isAllowed("https://www.someplac
 ```
 If for some reason there's no robots.txt file at the root of the domain, a `MissingRobotsTxtException` will be thrown.
 ```php
-// Typical usage
 <?php
+// Typical usage
 use Robots\RobotsTxt;
 use Robots\Exceptions\MissingRobotsTxtException;
 ...
@@ -58,7 +58,7 @@ try {
     // Handle the error
 }
 ```
-Further, `getDisallowed` will return an array of paths listed as Disallowed for `UserAgent: *`:
+Further, `getDisallowed` will return an array of the disallowed paths for `User-Agent: *`:
 ```php
 $robots     = new RobotsTxt();
 $disallowed = $robots->getDisallowed("https://www.example.com");
