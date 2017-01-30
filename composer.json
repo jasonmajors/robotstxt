@@ -1,8 +1,26 @@
 {
+	"name": "jmajors/robotstxt",
+	"type": "library",
+	"description": "A small package for parsing websites' robots.txt files",
+	"keywords": [
+		"PHP",
+		"robots.txt",
+	],
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "Jason Majors",
+			"email": "jasonrmajors@gmail.com",
+			"homepage": "https://github.com/jasonmajors"
+		}
+	],
 	"autoload": {
         "psr-4": {
             "Robots\\": "src/"
         }
+    },
+    "require": {
+    	"php": ">=5.4.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^5.7"
