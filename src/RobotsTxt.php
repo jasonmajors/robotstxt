@@ -187,19 +187,21 @@ class RobotsTxt
  		$handle = @fopen($robotsUrl, "r");
 		if ($handle) {
 		    while (($line = strtolower(fgets($handle))) != false) {
+		    	// Remove hashes in place for comments
+		    	$line = strpos($line, '#') ? strstr($line, '#', true) : $line;
 		        // process the line read.
 		    	if (strpos($line, 'user-agent: ') !== false) {
 		    		// Get the user agent
 		    		$userAgent = trim(explode('user-agent: ', $line)[1]);
 		    		// Remove any new line characters
 		    		$userAgent = str_replace(PHP_EOL, '', $userAgent);
-		    	} elseif (strpos($line, 'allow: ') === 0) {
-		    		$allowedUrl = trim(explode('allow: ', $line)[1]);
-		    		$allowedUrl = $this->normalizePathString($allowedUrl);
-		    		$robotsRules['userAgent'][$userAgent]['allowed'][] = $allowedUrl;
 		    	} elseif (strpos($line, 'disallow: ') === 0) {
 		    		$disallowUrl = trim(explode('disallow: ', $line)[1]);
-		    		$disallowUrl = $this->normalizePathString($disallowUrl);
+		    		// Don't strip slashes from the path if the disallowed path is root
+		    		if ($disallowUrl !== '/') {
+		    			$disallowUrl = $this->normalizePathString($disallowUrl);
+		    		}
+		    		// Add rule to array
 		    		$robotsRules['userAgent'][$userAgent]['disallowed'][] = $disallowUrl;
 		    	} else {
 		    		continue;
