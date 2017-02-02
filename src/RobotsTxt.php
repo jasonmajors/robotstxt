@@ -195,15 +195,15 @@ class RobotsTxt
 		    		$userAgent = trim(explode('user-agent: ', $line)[1]);
 		    		// Remove any new line characters
 		    		$userAgent = str_replace(PHP_EOL, '', $userAgent);
-		    	} elseif (strpos($line, 'disallow: ') === 0) {
-		    		$disallowUrl = trim(explode('disallow: ', $line)[1]);
+		    	} elseif (strpos($line, 'disallow:') === 0) {
+		    		$disallowUrl = trim(explode('disallow:', $line)[1]);
 		    		// Don't strip slashes from the path if the disallowed path is root
 		    		if ($disallowUrl !== '/') {
 		    			$disallowUrl = $this->normalizePathString($disallowUrl);
 		    		}
 		    		// Add rule to array
 		    		$robotsRules['userAgent'][$userAgent]['disallowed'][] = $disallowUrl;
-		    	} else {
+		    	} else {	
 		    		continue;
 		    	}
 		    }
