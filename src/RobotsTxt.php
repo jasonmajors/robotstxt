@@ -22,7 +22,6 @@ class RobotsTxt
 
     /**
      * Instantiate the class
-     * @param string $url 
      */
     public function __construct() 
     {
