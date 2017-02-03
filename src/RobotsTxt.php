@@ -117,17 +117,6 @@ class RobotsTxt
 	}
 
 	/**
-	 * Returns the user agents with specified rules
-	 * This will not return a user agent that has no rules set after it
-	 * 
-	 * @return array
-	 */
-	public function getUserAgents()
-	{
-		return $robotsRules['userAgent'];
-	}
-
-	/**
 	 * Removes new line characters and assures we remove any leading slashes
 	 * @param  string $path 
 	 * @return string       
