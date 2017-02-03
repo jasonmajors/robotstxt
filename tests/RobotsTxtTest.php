@@ -2,6 +2,7 @@
 
 use PHPUnit\Framework\TestCase;
 use Robots\RobotsTxt;
+use Robots\Exceptions\MissingRobotsTxtException;
 
 /**
  * @covers RobotsTxt
@@ -43,6 +44,12 @@ class RobotsTxtTest extends TestCase
 	{
 		$isAllowed = $this->robotsTxt->isAllowed($url);
 		$this->assertEquals($expected, $isAllowed);
+	}
+
+	public function testMissingRobotsTxtExceptionWhenNoRobotsTxtFile()
+	{
+		$this->expectException(MissingRobotsTxtException::class);
+		$this->robotsTxt->isAllowed('https://www.example.com');
 	}
 
 	public function userAgentProvider()
