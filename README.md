@@ -1,5 +1,6 @@
 # Robotstxt Parser
 This is a small package to make parsing robots.txt rules easier.
+
 [![Build Status](https://travis-ci.org/jasonmajors/robotstxt.svg?branch=master)](https://travis-ci.org/jasonmajors/robotstxt)
 #### Quick example:
 ```php
