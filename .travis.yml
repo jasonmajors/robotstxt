@@ -3,4 +3,5 @@ php:
 - 7.0
 - 5.4
 - hhvm
+install: composer install
 script: phpunit tests/RobotsTxtTest.php
