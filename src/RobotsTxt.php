@@ -30,6 +30,17 @@ class RobotsTxt
 	}
 
 	/**
+	 * Set the user-agent string in the request header
+	 * @param string $userAgent
+	 */
+	public function setUserAgent($userAgent)
+	{
+		ini_set('user_agent', $userAgent);
+
+		return $this;
+	}
+
+	/**
 	 * Gets the paths specifically disallowed by the robots.txt file
 	 * 
 	 * @return array 
@@ -81,7 +92,7 @@ class RobotsTxt
 	 * @param  string $path A parsed URL path
 	 * @return string $parts A regenx pattern
 	 */
-	public function convertToRegex($path)
+	protected function convertToRegex($path)
 	{
 		$parts = explode("/", $path);
 		array_walk($parts, function(&$value, &$k) {
@@ -121,7 +132,7 @@ class RobotsTxt
 	 * @param  string $path 
 	 * @return string       
 	 */
-	private function normalizePathString($path)
+	protected function normalizePathString($path)
 	{
 		$path = str_replace(PHP_EOL, '', $path);
 		$path = trim($path, "/");
@@ -149,7 +160,7 @@ class RobotsTxt
 	 * @param  string $domain The domain portion of the URL e.g. example.com
 	 * @return bool
 	 */
-	private function isBaseRulesSet($base)
+	protected function isBaseRulesSet($base)
 	{
 		// need to get domain of url then check
 		return isset($this->robotsRules[$base]);
@@ -159,18 +170,10 @@ class RobotsTxt
 	 * Set the robots.txt rules for a domain
 	 * @param string $domain 
 	 */
-	private function setBaseRules($base)
+	protected function setBaseRules($base)
 	{
 		$robotsUrl = $this->getRobotsUrl($base);
 		$this->robotsRules[$base] = $this->getRobotsRules($robotsUrl);
-	}
-
-
-	public function setUserAgent($userAgent)
-	{
-		ini_set('user_agent', $userAgent);
-
-		return $this;
 	}
 
 	/**
