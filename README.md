@@ -1,5 +1,6 @@
 # Robotstxt Parser
 This is a small package to make parsing robots.txt rules easier.
+[![Build Status](https://travis-ci.org/jasonmajors/robotstxt.svg?branch=master)](https://travis-ci.org/jasonmajors/robotstxt)
 #### Quick example:
 ```php
 // basic usage
@@ -64,9 +65,7 @@ $robots     = new RobotsTxt();
 $disallowed = $robots->getDisallowed("https://www.example.com");
 ```
 ## TODO's
- - Write tests
  - Add ability to check disallowed paths based on user agent
- - Check when robots.txt was last updated
  - Return a list of user agents in the file
 
 
