@@ -21,14 +21,6 @@ class RobotsTxt
     protected $userAgent;
 
     /**
-     * Instantiate the class
-     */
-    public function __construct() 
-    {
-
-    }
-
-    /**
      * Set the user-agent string in the request header
      * @param string $userAgent
      */
