@@ -38,6 +38,8 @@ class RobotsTxt
      */
     public function getDisallowed($url)
     {
+        $disallowed = [];
+
         $domain = parse_url($url)['host'];
         $scheme = parse_url($url)['scheme'];
         $base   = $scheme . '://' . $domain;
@@ -46,7 +48,11 @@ class RobotsTxt
             $this->setBaseRules($base);
         }
 
-        return $this->robotsRules[$base]['userAgent']['*']['disallowed'];
+        if (isset($this->robotsRules[$base]['userAgent']['*']['disallowed'])) {
+            $disallowed = $this->robotsRules[$base]['userAgent']['*']['disallowed'];
+        } 
+
+        return $disallowed;
     }
 
     /**
