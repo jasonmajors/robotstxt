@@ -1,7 +1,7 @@
 # Robotstxt Parser
-This is a small package to make parsing robots.txt rules easier.
-
 [![Build Status](https://travis-ci.org/jasonmajors/robotstxt.svg?branch=master)](https://travis-ci.org/jasonmajors/robotstxt)
+
+This is a small package to make parsing robots.txt rules easier. The URL matching follows the rules outlined by Google in their [webmasters guide](https://developers.google.com/webmasters/control-crawl-index/docs/robots_txt#url-matching-based-on-path-values).
 #### Quick example:
 ```php
 // basic usage

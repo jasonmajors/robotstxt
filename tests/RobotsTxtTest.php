@@ -62,18 +62,18 @@ class RobotsTxtTest extends TestCase
     public function getDisallowedProvider()
     {
         $phpnetExpectedDisallowed = [
-            'backend',
-            'distributions',
-            'stats',
-            'server-status',
-            'source.php',
-            'search.php',
-            'mod.php',
-            'manual/add-note.php',
-            'manual/vote-note.php',
-            'harming/humans',
-            'ignoring/human/orders',
-            'harm/to/self',
+            '/backend/',
+            '/distributions/',
+            '/stats/',
+            '/server-status/',
+            '/source.php',
+            '/search.php',
+            '/mod.php',
+            '/manual/add-note.php',
+            '/manual/vote-note.php',
+            '/harming/humans',
+            '/ignoring/human/orders',
+            '/harm/to/self',
         ];
 
         return [
@@ -85,8 +85,8 @@ class RobotsTxtTest extends TestCase
     {
         return [
             ['https://secure.php.net/backend/', false],
-            ['https://secure.php.net/distributions', false],
-            ['https://secure.php.net/stats', false],
+            ['https://secure.php.net/distributions/', false],
+            ['https://secure.php.net/stats/', false],
             ['https://secure.php.net/source.php', false],
             ['https://secure.php.net/manual/vote-note.php', false],
             ['https://secure.php.net/support.php', true],

@@ -5,6 +5,8 @@
 namespace Robots;
 
 use Robots\Exceptions\MissingRobotsTxtException;
+use CachingIterator;
+use ArrayIterator;
 
 class RobotsTxt
 {
@@ -64,11 +66,9 @@ class RobotsTxt
     public function isAllowed($url)
     {
         $allowed = true;
-        $path = parse_url(strtolower($url), PHP_URL_PATH);
-        // Remove leading slashes and add trailing slash
-        // We want the path to look like "this/is/a/path/" as our regex pattern will be looking for a trailing slash
-        $path = ltrim($path, "/");
-        $path = (substr($path, -1) == "/") ? $path : $path . '/';
+        $path  = parse_url($url, PHP_URL_PATH);
+        $query = parse_url($url, PHP_URL_QUERY);
+        $path = $path . '?' . $query;
         // Check if path is allowed
         foreach ($this->getDisallowed($url) as $disallowed) {
             if ($disallowed == "/") {
@@ -86,46 +86,38 @@ class RobotsTxt
 
     /**
      * Convert a URL path into a regex pattern
-     * @param  string $path A parsed URL path
-     * @return string $parts A regenx pattern
+     * @link   https://developers.google.com/webmasters/control-crawl-index/docs/robots_txt#url-matching-based-on-path-values
+     * @param  string $path A parsed URL path + querystring
+     * @return string A regex string
      */
-    protected function convertToRegex($path)
+    public function convertToRegex($path)
     {
-        $parts = explode("/", $path);
-        array_walk($parts, function(&$value, &$k) {
-            // Replace LONE *s with a wildcard to match anything with a trailing slash
-            if ($value === '*') {
-                $value = "[\w\-\/]+(\/)";
+        $regexStr   = '';
+        $collection = new CachingIterator(new ArrayIterator(str_split($path)));
+        foreach ($collection as $k => $character) {
+            // Disallowed path begins with "/", path must BEGIN with whats to follow
+            if ($k === 0 && $character === '/') {
+                $regexStr .= '^\\/';
+            // Escape the forward flashes for matching
+            } elseif ($character === '/') {
+                $regexStr .= '\\/';
+            // Wildcard character: Any sequency of valid characters should match
+            } elseif ($character === '*') {
+                $regexStr .= '[a-zA-Z0-9_\-\/]*';
+            // End of string
+            } elseif ($character === '$') {
+                $regexStr .= $character;
+            // Trailing * char is ignored
+            } elseif ($collection->hasNext() === false && $character === '*') {
+                // End of collection
+                break;
             } else {
-                $value = preg_quote($value, "/") . "(\/)";
+                $regexStr .= preg_quote($character);
             }
-            // Replace *s WITHIN a path string
-            $value = str_replace("\*", "[\w\-]*", $value);
-            // '&'' marks the ending URL which we don't need for our regex solution
-            $value = str_replace("\\$", "", $value);
-        });
-        // Join the elements back into a string and escape the group sectioning
-        $parts = join('', $parts);
-        // Indicate that if we disallow something like "*/account", we'll also disallow */account/somethingelse".
-        // Remove the appending regex to allow the above condition (e.g allow the somethingelse path case)
-        $parts = '/^' . $parts . "(.*)/"; 
-
-        return $parts;
+        }
+        // Delimiters added for preg_match
+        return  '/' . $regexStr . '/';
     }
-
-    /**
-     * Removes new line characters and assures we remove any leading slashes
-     * @param  string $path 
-     * @return string       
-     */
-    protected function normalizePathString($path)
-    {
-        $path = str_replace(PHP_EOL, '', $path);
-        $path = trim($path, "/");
-
-        return $path;
-    }
-
 
     /**
      * Retrieves the roobots.txt file URL for a given url
@@ -175,21 +167,18 @@ class RobotsTxt
         $userAgent   = '';
         $handle = @fopen($robotsUrl, "r");
         if ($handle) {
-            while (($line = strtolower(fgets($handle))) != false) {
+            // @todo dont force lower case as URLs are case sensitive!
+            while (($line = fgets($handle)) != false) {
                 // Remove hashes in place for comments
                 $line = strpos($line, '#') ? strstr($line, '#', true) : $line;
                 // process the line read.
-                if (strpos($line, 'user-agent: ') !== false) {
+                if (strpos($line, 'User-agent: ') !== false) {
                     // Get the user agent
-                    $userAgent = trim(explode('user-agent: ', $line)[1]);
+                    $userAgent = trim(explode('User-agent: ', $line)[1]);
                     // Remove any new line characters
                     $userAgent = str_replace(PHP_EOL, '', $userAgent);
-                } elseif (strpos($line, 'disallow:') === 0) {
-                    $disallowUrl = trim(explode('disallow:', $line)[1]);
-                    // Don't strip slashes from the path if the disallowed path is root
-                    if ($disallowUrl !== '/') {
-                        $disallowUrl = $this->normalizePathString($disallowUrl);
-                    }
+                } elseif (strpos($line, 'Disallow:') === 0) {
+                    $disallowUrl = trim(explode('Disallow:', $line)[1]);
                     // Add rule to array
                     $robotsRules['userAgent'][$userAgent]['disallowed'][] = $disallowUrl;
                 } else {    
@@ -200,7 +189,6 @@ class RobotsTxt
         } else {
             throw new MissingRobotsTxtException("Unable to retrieve robots.txt file for URL: {$robotsUrl}");
         } 
-
         return $robotsRules;
     }
 }
