@@ -37,6 +37,22 @@ class RobotsTxtTest extends TestCase
     }
 
     /**
+     * @depends testSetUserAgent
+     */
+    public function testGetSitemaps()
+    {
+        $sitemaps = $this->robotsTxt->getSitemaps('http://www.target.com');
+        $expected = [
+            'http://www.target.com/sitemap_index.xml.gz', 
+            'http://tgtfiles.target.com/sitemaps/sitemap_assorted_index.xml.gz', 
+            'http://www.target.com/sitemap_image_index.xml.gz', 
+            'http://www.target.com/sitemap_video_index.xml.gz'
+        ];
+
+        $this->assertEquals($expected, $sitemaps);
+    }
+
+    /**
      * @depends      testGetDisallowed
      * @dataProvider isAllowedProvider
      */

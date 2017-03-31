@@ -34,6 +34,24 @@ class RobotsTxt
     }
 
     /**
+     * Gets the sitemap URLs for a site
+     * @param  string $url The URL of the website whose sitemap you're looking for
+     * @return array
+     */
+    public function getSitemaps($url)
+    {
+        $domain = parse_url($url)['host'];
+        $scheme = parse_url($url)['scheme'];
+        $base   = $scheme . '://' . $domain;
+
+        if ($this->isBaseRulesSet($base) === false) {
+            $this->setBaseRules($base);
+        }
+
+        return $this->robotsRules[$base]['sitemaps'];
+    }
+
+    /**
      * Gets the paths specifically disallowed by the robots.txt file
      * 
      * @return array 
@@ -177,6 +195,9 @@ class RobotsTxt
                     $userAgent = trim(explode('User-agent: ', $line)[1]);
                     // Remove any new line characters
                     $userAgent = str_replace(PHP_EOL, '', $userAgent);
+                } elseif (strpos($line, 'Sitemap:') !== false) {
+                    $sitemap = trim(explode('Sitemap:', $line)[1]);
+                    $robotsRules['sitemaps'][] = $sitemap; 
                 } elseif (strpos($line, 'Disallow:') === 0) {
                     $disallowUrl = trim(explode('Disallow:', $line)[1]);
                     // Add rule to array
